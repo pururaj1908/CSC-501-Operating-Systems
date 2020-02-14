@@ -1,0 +1,68 @@
+Q.1.
+
+1. Random boosting :-	
+   It is another approach that can address priority inversion issue. The idea here is that ready processes holding the locks are randomly boosted in priority and thus they could run for long enough to exit the critical section quickly. Now if process does not get enough time to run long enough to exit the critical section then it is given another chance during next round of scheduling. It was used and introduced by Microsoft (https://docs.microsoft.com/en-us/windows/win32/procthread/priority-boosts).
+
+2. Test Case Results:-
+	Test Results from Semaphore approach :-
+
+	-start writer, then sleep 1s. sem granted to write (prio 10)
+	 writer: to acquire sem
+ 	 writer: acquired sem, sleep 10s
+	Priority of writer:10
+	-start reader A, then sleep 1s. reader A(prio 40) blocked on the sem
+  	reader A: to acquire sem
+	Priority of writer:10
+	-start reader B, then sleep 1s. reader B(prio 30) blocked on the sem
+  	reader B: to acquire sem
+	Priority of writer:10
+
+	End of Test Result from Semaphore approach
+
+
+	Test Results from Priority Inheritance approach :-
+	
+	-start writer, then sleep 1s. lock granted to write (prio 10)
+  	writer: to acquire lock
+ 	writer: acquired lock, sleep 10s
+	Priority of writer:10
+	-start reader A, then sleep 1s. reader A(prio 40) blocked on the lock
+ 	 reader A: to acquire lock
+	Priority of writer:40
+	-start reader B, then sleep 1s. reader B(prio 30) blocked on the lock
+  	reader B: to acquire lock
+	Priority of writer:40
+
+	End of Test Result Priority Inheritance approach	
+
+
+  -->	Thus, it is clear from the above results that through semaphore approach low priority process writer (prio 10) will starve higher priority reader process A (prio 40) before exiting critical section as there is no change in the priority of writer process holding the semaphore.
+  -->	Now, through priority inheritance approach, the above problem is solved as soon as reader process A tries to acquire lock held by lower priority writer process as writer process's priority is increased to equal maximum priority process (40) in the queue of that lock held by writer process. Thus, writer process will get enough time to exit the critical section as compared to semaphore approach.
+
+
+Q.2.
+
+The problem occurs when multiple readers enter the do_update method. As read locks are not exclusive, multiple readers acquires the lock in do_update method and then call try_update method which basically add new buffer to global_buff which will be global to all threads. Thus, there are chances that data may get inconsistent due to multiple readers filling the global buffer concurrently.
+
+For example, 
+ -> Suppose "reader 1" thread gets the lock and called do_update method and tries to add current string time representation string to global_buf. 
+ -> Now, before it can actually call buffer_add method to add time string into global_buf, "reader 2" thread also holding the lock gets chance to run and call buffer_add method with its own current string time representation which adds its time string in global_buf.
+ -> Thus, due to "reader 2" thread updating the global_buf with its own string buffer's current length increases.
+ -> Now, "reader 1" thread resumes from the area where it has already computed string time and so it will now call buffer_add method which eventually adds its time string to global_buf too. But, the addition of time string will not be at the intended place in global buffer as it was meant earlier. -> Therefore, due to interleaving of threads on global_buffer, we could not guarantee the order in which time strings of multiple readers are added to global buffer.
+
+One such interleaving that triggers the above problem is as follows:-
+
+->  "reader 1" gets lock in do_update
+->  "reader 1" calls try_update
+->  "reader 1" computes time string in try_update
+->  "reader 1" deschedules before acquiring global_semaphore
+->  "reader 2" gets lock in do_update
+->  "reader 2" calls try_update
+->  "reader 2" computes time string in try_update
+->  "reader 2" acquires global_semaphore lock and add time string to global buffer by calling buffer_add method
+->  "reader 2" deschedules
+->  "reader 1" resumes and now acquire global_semaphore lock and add time string to global buffer by calling buffer_add method
+
+Thus, the intended order of the reader1 and reader2 time strings in global_buf gets reversed due to concurrency problem.
+
+	     	 		
