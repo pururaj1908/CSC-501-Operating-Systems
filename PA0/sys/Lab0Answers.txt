@@ -1,0 +1,71 @@
+
+1. 
+    _ _ _ _ _ _ 	
+   |		|0x0
+   |		|
+   |    	|
+   |_ _ _ _ _ _	|0x00019100 base address
+   |		|
+   |text	|
+   |segment	|
+   |_ _ _ _ _ _	|0x0001919d etext 
+   |		|
+   |		|
+   |		|
+   |data        |
+   |segment	|
+   |		|
+   |_ _ _ _ _ _	|0x0001e53d edata
+   |		|
+   |            |
+   |bss		|
+   |segment 	|
+   |		|
+   |_ _ _ _ _ _	|0x00059cd8 ebss
+   |		|
+   |		|
+   |		|
+   |free	|
+   |space 	|
+   |		|
+   |		|
+   |_ _ _ _ _ _	|0x000fdffc limit address	 		
+   |		|	
+   |		|
+   |		|	
+   |		|
+
+   The above is a depiction of segments each process can have in memory. It can access from base till limit addresses. It consists in between 4 basic segments text, data, bss and free space. The values used to indicate end of text,data and bss segments i.e. etext,edata and ebss are experiment based. 
+
+
+2. 
+   _ _ _ _ _ _ _	
+  |		|-> top of stack after getting in printtos()	     	
+  |		|   (i.e. after loading local variables/creating space 			
+  |local     	|    for printtos())
+  |variables    |
+  |printtos()	|
+  |_ _ _ _ _ _ _|
+  |saved bp     |-> top of stack just before getting in printtos()
+  |_ _ _ _ _ _ _|   (i.e. before loading/creating space for printtos())
+  |return add   |
+  | + params 	|
+  |_ _ _ _ _ _  |  
+  |local	|
+  |variables    |
+  |parent func()|	
+  |		|	
+  |      	|
+
+    In the caller function of printtos() we push params and return addresses(back into caller func) on stack and then assign esp(stack top) to ebp before loading printtos(). 
+    After we get into printtos() we load local variables and other space in stack and thus stack pointer gets updated. Thus local variables and other registers pushed int the stack resides between two stack tops right after printtos() and just before printtos(); 	 
+ 
+The above idea is based on this article "http://flint.cs.yale.edu/cs421/papers/x86-asm/asm.html"; 
+
+3.
+  
+  We cannot be certainly sure that it shows all the local variable's values as we are showing upto 4 values and it might occur that out of the 4 values one might be the location of callee-saved registers (like ebx,edi) which are pushed on to the stack before printtos() function manipulate any of those so that while returning from the function the values of these registers can be restored by poping the stack and so that caller function() could resume its work from where it left with right values on these registers just before call.
+
+
+  	
+	 	
