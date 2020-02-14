@@ -1,0 +1,39 @@
+
+
+1.
+ 
+   Exponential Distribution Scheduler :-
+	Advantages :- 
+		- It prevents starvation problem upto certain extent as compared to existing Xinu scheduler. As scheduling is based on value of random variable following exponential distribution.
+		- We can be able to predict the percentage of run time alloted to each process based on its priority when processes keeps running above a certain time period as scheduling algorithm is based on exponential distribution.
+	
+	Disadvantages :-
+		- Due to exponential distribution based randomness, higher priority processes does not get much CPU time compared to their counterparts that frequently. Thus it will not be helpful in case of interactive processes whose priorities are higher.
+
+   Linux Based Scheduler :- 
+	Advantages :- 
+		- It prevents starvation problem by assigning fixed quantum time to each process in particular epoch compared to existing Xinu scheduler.
+		- As goodness value also depends on priority, high priority process complete more speedily than compared to its lower counterparts. Also, it gives fair chance to the process which did not consume whole quantum in previous epoch due to some reason, to carry forward half of remaining quantum to next epoch.
+	
+	Disadvantages :-
+		- Lot of computations is involved in scheduler which increases the overhead when lots of processes are there. As we need to compute goodness value for each process and compare with others.
+		- Average turnaround time of lower priority processes becomes very high due to scheduling based on goodness value.
+
+   Xinu Round-Robin Scheduler :-
+	Advantages :-
+		- Easy to implement and also scheduler is fast due to low number of computations involved.
+		- Average waiting time for higher priority processes are very low as it favours high priority processes.
+	Disadvantages:-
+		- There is starvation problem as it always schedule highest priority processes and lower priority processes needts to wait for long period of time.
+
+
+2.
+
+  Exponential Distribution Scheduler :-
+	- NULL process is given chance when no other process is in ready queue.
+
+  Linux Distribution Scheduler :-
+	- When all processes complete their quantum in certain epoch or when there are no runnable processes then NULL proc gets chance to run until some suspended or new process becomes ready in the next epoch.
+
+  Xinu Round-Robin Scheduler :-
+	- NULL process will run when no other process is in ready queue.	 				 	
